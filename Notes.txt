@@ -1,0 +1,34 @@
+Features:
+  - Characters
+    - Name, Description
+    - Level
+    - Max HP, temp HP, current HP
+    - Max SP, current SP
+    - AC
+    - Ability Scores
+    - Saving Throws
+    - Skills
+      - extensible
+    - Proficiencies
+      - modular, should allow different modes of operation
+        - Probably still based on untrained/trained/expert/master/legendary
+      - Armor/Weapon
+      - Skills
+    - Spellcasting
+      - Spells, including which ability they use
+    - Item Inventory
+    - Has to be able to hold both current and "normal" values
+    - Languages
+    - Feats
+      - Description
+      - Mechanical influence on rolls
+    - Status Effects/Conditions
+  - Actions
+    - Execute actions on behalf of characters with targets and whatnot
+    - Easily define new actions
+  - Combat
+    - Basic grid map supporting movement and walls
+    - Area calculation
+    - Tokens
+    - Light + Visibility
+    
