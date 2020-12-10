@@ -1,0 +1,9 @@
+[package]
+name = "ttrpg_sim"
+version = "0.1.0"
+authors = ["Dominik Toedling <dominik.toedling@student.tugraz.at>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
