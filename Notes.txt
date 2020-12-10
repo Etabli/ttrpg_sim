@@ -2,7 +2,12 @@ Features:
   - Characters
     - Name, Description
     - Level
-    - Max HP, temp HP, current HP
+    - HP
+      - Max HP
+        - can be temporarily reduced
+      - Min of 0
+      - Current HP
+      - Temp HP
     - Max SP, current SP
     - AC
     - Ability Scores
