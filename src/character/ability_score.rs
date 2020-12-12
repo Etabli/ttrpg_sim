@@ -1,3 +1,4 @@
+#[derive(Debug, Copy, Clone)]
 pub struct AbilityScore {
     value: u32,
 }
@@ -20,6 +21,7 @@ impl AbilityScore {
     }
 }
 
+#[derive(Debug, Copy, Clone)]
 pub enum AbilityScoreType {
     Strength,
     Dexterity,
@@ -29,6 +31,7 @@ pub enum AbilityScoreType {
     Charisma,
 }
 
+#[derive(Debug)]
 pub struct AbilityScoreSet {
     strength: AbilityScore,
     dexterity: AbilityScore,
