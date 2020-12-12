@@ -33,6 +33,102 @@ pub enum AbilityScoreType {
     Charisma,
 }
 
+#[derive(Debug, Eq, PartialEq, Hash)]
+pub struct AbilityBoostFree {}
+
+impl AbilityBoostFree {
+    pub fn choose(&self, boost: AbilityScoreType) -> AbilityScoreType {
+        boost
+    }
+}
+
+#[derive(Debug, Eq, PartialEq, Hash)]
+pub struct AbilityBoostRestricted {
+    options: Vec<AbilityScoreType>,
+}
+
+impl AbilityBoostRestricted {
+    pub fn choose(&self, boost: AbilityScoreType) -> Result<AbilityScoreType, String> {
+        if self.options.contains(&boost) {
+            Ok(boost)
+        } else {
+            Err(format!(
+                "Boost to {:?} is not a valid choice! Options: {:?}",
+                boost, self.options
+            ))
+        }
+    }
+}
+
+#[derive(Debug, Eq, PartialEq, Hash)]
+pub enum AbilityBoostChoice {
+    Free(AbilityBoostFree),
+    Restricted(AbilityBoostRestricted),
+    Predetermined(AbilityScoreType),
+}
+
+impl AbilityBoostChoice {
+    pub fn free() -> AbilityBoostChoice {
+        AbilityBoostChoice::Free(AbilityBoostFree {})
+    }
+
+    pub fn restricted(options: HashSet<AbilityScoreType>) -> AbilityBoostChoice {
+        AbilityBoostChoice::Restricted(AbilityBoostRestricted {
+            options: options.into_iter().collect(),
+        })
+    }
+
+    pub fn predetermined(boost: AbilityScoreType) -> AbilityBoostChoice {
+        AbilityBoostChoice::Predetermined(boost)
+    }
+}
+
+pub trait AbilityBoostChoiceSet {
+    fn apply_choices(
+        &self,
+        choices: &Vec<AbilityScoreType>,
+    ) -> Result<HashSet<AbilityScoreType>, String>;
+}
+impl AbilityBoostChoiceSet for HashSet<AbilityBoostChoice> {
+    fn apply_choices(
+        &self,
+        choices: &Vec<AbilityScoreType>,
+    ) -> Result<HashSet<AbilityScoreType>, String> {
+        let mut choices_iter = choices.iter();
+        let mut result = HashSet::with_capacity(self.len());
+        for boost in self.iter() {
+            let choice = match boost {
+                AbilityBoostChoice::Predetermined(boost) => *boost,
+                AbilityBoostChoice::Free(_) | AbilityBoostChoice::Restricted(_) => {
+                    if let Some(choice) = choices_iter.next() {
+                        match boost {
+                            AbilityBoostChoice::Free(_) => *choice,
+                            AbilityBoostChoice::Restricted(options) => options.choose(*choice)?,
+                            _ => panic!("should never happen"),
+                        }
+                    } else {
+                        return Err("Too few boost choices!".to_string());
+                    }
+                }
+            };
+            if result.contains(&choice) {
+                return Err(format!(
+                    "Duplicte boost choice! {:?} was already chosen!",
+                    choice
+                ));
+            } else {
+                result.insert(choice);
+            }
+        }
+
+        if let Some(_) = choices_iter.next() {
+            Err("Too many boost choices!".to_string())
+        } else {
+            Ok(result)
+        }
+    }
+}
+
 #[derive(Debug)]
 pub struct AbilityScoreSet {
     strength: AbilityScore,
@@ -127,5 +223,69 @@ mod tests {
 
         assert_eq!(set.get(AbilityScoreType::Intelligence).value(), 10);
         assert_eq!(set.get(AbilityScoreType::Wisdom).value(), 10);
+    }
+}
+
+#[cfg(test)]
+mod ability_score_choice_tests {
+    use super::*;
+
+    #[test]
+    fn free() {
+        let choice = AbilityBoostChoice::free();
+
+        let boost = match choice {
+            AbilityBoostChoice::Free(boost) => boost.choose(AbilityScoreType::Strength),
+            _ => panic!(""),
+        };
+
+        assert_eq!(boost, AbilityScoreType::Strength);
+    }
+
+    #[test]
+    fn predetermined() {
+        let choice = AbilityBoostChoice::Predetermined(AbilityScoreType::Strength);
+
+        let boost = match choice {
+            AbilityBoostChoice::Predetermined(boost) => boost,
+            _ => panic!(""),
+        };
+
+        assert_eq!(boost, AbilityScoreType::Strength);
+    }
+
+    #[test]
+    fn restricted() {
+        let choice = AbilityBoostChoice::restricted(hashset![
+            AbilityScoreType::Strength,
+            AbilityScoreType::Dexterity,
+            AbilityScoreType::Constitution
+        ]);
+
+        let boost = match choice {
+            AbilityBoostChoice::Restricted(boost) => {
+                boost.choose(AbilityScoreType::Dexterity).unwrap()
+            }
+            _ => panic!(""),
+        };
+
+        assert_eq!(boost, AbilityScoreType::Dexterity);
+    }
+
+    #[test]
+    #[should_panic]
+    fn restricted_incorrect_choice() {
+        let choice = AbilityBoostChoice::restricted(hashset![
+            AbilityScoreType::Strength,
+            AbilityScoreType::Dexterity,
+            AbilityScoreType::Constitution
+        ]);
+
+        match choice {
+            AbilityBoostChoice::Restricted(boost) => {
+                boost.choose(AbilityScoreType::Intelligence).unwrap()
+            }
+            _ => panic!(""),
+        };
     }
 }

@@ -1,7 +1,7 @@
 use std::collections::HashSet;
 
-use crate::character::AbilityScoreType;
 use crate::character::Size;
+use crate::character::{AbilityBoostChoice, AbilityBoostChoiceSet, AbilityScoreType};
 
 #[derive(Debug)]
 pub struct Ancestry {
@@ -9,8 +9,7 @@ pub struct Ancestry {
     base_hp: u32,
     size: Size,
     speed: u32,
-    ability_boosts: HashSet<AbilityScoreType>,
-    free_boosts: u8,
+    ability_boosts: HashSet<AbilityBoostChoice>,
 }
 
 impl Ancestry {
@@ -19,8 +18,7 @@ impl Ancestry {
         base_hp: u32,
         size: Size,
         speed: u32,
-        ability_boosts: HashSet<AbilityScoreType>,
-        free_boosts: u8,
+        ability_boosts: HashSet<AbilityBoostChoice>,
     ) -> Ancestry {
         Ancestry {
             name,
@@ -28,7 +26,6 @@ impl Ancestry {
             size,
             speed,
             ability_boosts,
-            free_boosts,
         }
     }
 
@@ -48,29 +45,15 @@ impl Ancestry {
         self.speed
     }
 
+    pub fn ability_boosts(&self) -> &HashSet<AbilityBoostChoice> {
+        &self.ability_boosts
+    }
+
     pub fn get_ability_boosts(
         &self,
-        free_boosts: &HashSet<AbilityScoreType>,
+        boost_choices: &Vec<AbilityScoreType>,
     ) -> Result<HashSet<AbilityScoreType>, String> {
-        if free_boosts.len() != self.free_boosts as usize {
-            return Err(format!(
-                "Invalid number of free boosts: expected {}, got {}!",
-                self.free_boosts,
-                free_boosts.len()
-            ));
-        } else if free_boosts
-            .iter()
-            .any(|free_boost| self.ability_boosts.contains(free_boost))
-        {
-            return Err("Free boosts cannot overlap with predetermined boosts!".to_string());
-        }
-
-        Ok(self
-            .ability_boosts
-            .iter()
-            .cloned()
-            .chain(free_boosts.iter().cloned())
-            .collect())
+        self.ability_boosts.apply_choices(boost_choices)
     }
 }
 
@@ -85,12 +68,15 @@ mod tests {
             8,
             Size::Medium,
             30,
-            hashset![AbilityScoreType::Strength, AbilityScoreType::Constitution],
-            1,
+            hashset![
+                AbilityBoostChoice::predetermined(AbilityScoreType::Strength),
+                AbilityBoostChoice::predetermined(AbilityScoreType::Constitution),
+                AbilityBoostChoice::free(),
+            ],
         );
 
         let boosts = ancestry
-            .get_ability_boosts(&hashset![AbilityScoreType::Dexterity])
+            .get_ability_boosts(&vec![AbilityScoreType::Dexterity])
             .unwrap();
         assert_eq!(
             boosts,
@@ -104,22 +90,43 @@ mod tests {
 
     #[test]
     #[should_panic]
-    fn get_ability_boosts_incorrect_number_of_free_boosts() {
+    fn get_ability_boosts_too_many_boost_choices() {
         let ancestry = Ancestry::new(
             "Bob".to_string(),
             8,
             Size::Medium,
             30,
-            hashset![AbilityScoreType::Strength, AbilityScoreType::Constitution],
-            1,
+            hashset![
+                AbilityBoostChoice::predetermined(AbilityScoreType::Strength),
+                AbilityBoostChoice::predetermined(AbilityScoreType::Constitution),
+                AbilityBoostChoice::free(),
+            ],
         );
 
         ancestry
-            .get_ability_boosts(&hashset![
+            .get_ability_boosts(&vec![
                 AbilityScoreType::Dexterity,
                 AbilityScoreType::Strength,
             ])
             .unwrap();
+    }
+
+    #[test]
+    #[should_panic]
+    fn get_ability_boosts_too_few_boost_choices() {
+        let ancestry = Ancestry::new(
+            "Bob".to_string(),
+            8,
+            Size::Medium,
+            30,
+            hashset![
+                AbilityBoostChoice::predetermined(AbilityScoreType::Strength),
+                AbilityBoostChoice::predetermined(AbilityScoreType::Constitution),
+                AbilityBoostChoice::free(),
+            ],
+        );
+
+        ancestry.get_ability_boosts(&vec![]).unwrap();
     }
 
     #[test]
@@ -130,12 +137,15 @@ mod tests {
             8,
             Size::Medium,
             30,
-            hashset![AbilityScoreType::Strength, AbilityScoreType::Constitution],
-            1,
+            hashset![
+                AbilityBoostChoice::predetermined(AbilityScoreType::Strength),
+                AbilityBoostChoice::predetermined(AbilityScoreType::Constitution),
+                AbilityBoostChoice::free(),
+            ],
         );
 
         ancestry
-            .get_ability_boosts(&hashset![AbilityScoreType::Strength])
+            .get_ability_boosts(&vec![AbilityScoreType::Strength])
             .unwrap();
     }
 }

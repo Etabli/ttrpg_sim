@@ -4,6 +4,8 @@ mod character;
 mod class;
 mod health;
 
+pub use ability_score::AbilityBoostChoice;
+pub use ability_score::AbilityBoostChoiceSet;
 pub use ability_score::AbilityScore;
 pub use ability_score::AbilityScoreSet;
 pub use ability_score::AbilityScoreType;

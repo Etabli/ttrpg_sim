@@ -1,5 +1,4 @@
 use crate::character::{AbilityScore, AbilityScoreSet, AbilityScoreType, Ancestry, Class, Health};
-use std::collections::HashSet;
 
 #[derive(Debug, Copy, Clone, Eq, PartialEq, Ord, PartialOrd)]
 pub enum Size {
@@ -29,7 +28,7 @@ impl<'class, 'ancestry> Character<'class, 'ancestry> {
         name: &str,
         class: &'class Class,
         ancestry: &'ancestry Ancestry,
-        ancestry_free_boosts: &HashSet<AbilityScoreType>,
+        ancestry_free_boosts: &Vec<AbilityScoreType>,
     ) -> Result<Character<'class, 'ancestry>, String> {
         Ok(Character {
             name: String::from(name),
@@ -126,11 +125,13 @@ impl<'class, 'ancestry> Character<'class, 'ancestry> {
 mod tests {
     use super::*;
 
+    use crate::character::AbilityBoostChoice;
+
     #[test]
     fn character_from_class() {
         let class = Class::new("Bob".to_string(), AbilityScoreType::Strength, 10);
-        let ancestry = Ancestry::new("Bob".to_string(), 0, Size::Medium, 30, hashset![], 0);
-        let character = Character::new("bob", &class, &ancestry, &hashset![]).unwrap();
+        let ancestry = Ancestry::new("Bob".to_string(), 0, Size::Medium, 30, hashset![]);
+        let character = Character::new("bob", &class, &ancestry, &vec![]).unwrap();
 
         assert_eq!(character.name(), "bob");
         assert_eq!(character.level(), 1);
@@ -151,16 +152,14 @@ mod tests {
             8,
             Size::Medium,
             30,
-            hashset![AbilityScoreType::Strength, AbilityScoreType::Constitution],
-            1,
+            hashset![
+                AbilityBoostChoice::predetermined(AbilityScoreType::Strength),
+                AbilityBoostChoice::predetermined(AbilityScoreType::Constitution),
+                AbilityBoostChoice::free(),
+            ],
         );
-        let character = Character::new(
-            "bob",
-            &class,
-            &ancestry,
-            &hashset![AbilityScoreType::Dexterity],
-        )
-        .unwrap();
+        let character =
+            Character::new("bob", &class, &ancestry, &vec![AbilityScoreType::Dexterity]).unwrap();
 
         assert_eq!(character.name(), "bob");
         assert_eq!(character.level(), 1);
@@ -183,16 +182,14 @@ mod tests {
             8,
             Size::Medium,
             30,
-            hashset![AbilityScoreType::Strength, AbilityScoreType::Constitution],
-            1,
+            hashset![
+                AbilityBoostChoice::predetermined(AbilityScoreType::Strength),
+                AbilityBoostChoice::predetermined(AbilityScoreType::Constitution),
+                AbilityBoostChoice::free(),
+            ],
         );
-        let mut character = Character::new(
-            "bob",
-            &class,
-            &ancestry,
-            &hashset![AbilityScoreType::Dexterity],
-        )
-        .unwrap();
+        let mut character =
+            Character::new("bob", &class, &ancestry, &vec![AbilityScoreType::Dexterity]).unwrap();
 
         character.level_up();
 
