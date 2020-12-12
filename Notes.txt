@@ -17,6 +17,7 @@ Features:
     - Proficiencies
       - modular, should allow different modes of operation
         - Probably still based on untrained/trained/expert/master/legendary
+      - Saving Throws
       - Armor/Weapon
       - Skills
     - Spellcasting
