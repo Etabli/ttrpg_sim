@@ -1,9 +1,6 @@
+use crate::character::ability_score::AbilityScoreSet;
 use crate::character::health::Health;
 use std::cmp::{max, min};
-
-struct AbilityScore {
-    value: u32,
-}
 
 pub struct Character {
     name: String,
@@ -11,10 +8,18 @@ pub struct Character {
     level: u32,
     hp: Health,
 
-    strength: AbilityScore,
-    dexterity: AbilityScore,
-    constituion: AbilityScore,
-    intelligence: AbilityScore,
-    wisdom: AbilityScore,
-    charisma: AbilityScore,
+    ability_score: AbilityScoreSet,
+}
+
+impl Character {
+    fn new(name: &str) -> Character {
+        Character {
+            name: String::from(name),
+            description: "".to_string(),
+            level: 1,
+            hp: Health::new(10),
+
+            ability_score: AbilityScoreSet::new(),
+        }
+    }
 }

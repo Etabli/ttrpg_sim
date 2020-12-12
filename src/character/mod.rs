@@ -1,3 +1,4 @@
+pub mod ability_score;
 mod character;
 pub mod health;
 

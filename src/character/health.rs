@@ -32,7 +32,7 @@ impl Health {
     }
     /// Sets a new amount of temporary HP. Does nothing if the character already has more temporary HP than the new value.
     pub fn set_temp(&mut self, value: u32) {
-        if (self.temp < value) {
+        if self.temp < value {
             self.temp = value;
         }
     }
