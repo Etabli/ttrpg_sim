@@ -89,7 +89,7 @@ pub trait AbilityBoostChoiceSet {
         choices: &Vec<AbilityScoreType>,
     ) -> Result<HashSet<AbilityScoreType>, String>;
 }
-impl AbilityBoostChoiceSet for HashSet<AbilityBoostChoice> {
+impl AbilityBoostChoiceSet for Vec<AbilityBoostChoice> {
     fn apply_choices(
         &self,
         choices: &Vec<AbilityScoreType>,
@@ -227,7 +227,7 @@ mod tests {
 }
 
 #[cfg(test)]
-mod ability_score_choice_tests {
+mod ability_boost_choice_tests {
     use super::*;
 
     #[test]
@@ -287,5 +287,68 @@ mod ability_score_choice_tests {
             }
             _ => panic!(""),
         };
+    }
+
+    #[test]
+    fn ability_boost_set_works() {
+        let set = vec![
+            AbilityBoostChoice::predetermined(AbilityScoreType::Strength),
+            AbilityBoostChoice::predetermined(AbilityScoreType::Constitution),
+            AbilityBoostChoice::free(),
+        ];
+
+        let boosts = set
+            .apply_choices(&vec![AbilityScoreType::Dexterity])
+            .unwrap();
+
+        assert_eq!(
+            boosts,
+            hashset![
+                AbilityScoreType::Strength,
+                AbilityScoreType::Constitution,
+                AbilityScoreType::Dexterity
+            ]
+        );
+    }
+
+    #[test]
+    #[should_panic]
+    fn ability_boost_set_too_many_boost_choices() {
+        let set = vec![
+            AbilityBoostChoice::predetermined(AbilityScoreType::Strength),
+            AbilityBoostChoice::predetermined(AbilityScoreType::Constitution),
+            AbilityBoostChoice::free(),
+        ];
+
+        set.apply_choices(&vec![
+            AbilityScoreType::Dexterity,
+            AbilityScoreType::Strength,
+        ])
+        .unwrap();
+    }
+
+    #[test]
+    #[should_panic]
+    fn ability_boost_set_too_few_boost_choices() {
+        let set = vec![
+            AbilityBoostChoice::predetermined(AbilityScoreType::Strength),
+            AbilityBoostChoice::predetermined(AbilityScoreType::Constitution),
+            AbilityBoostChoice::free(),
+        ];
+
+        set.apply_choices(&vec![]).unwrap();
+    }
+
+    #[test]
+    #[should_panic]
+    fn ability_boost_set_incorrect_duplicate_free_boost() {
+        let set = vec![
+            AbilityBoostChoice::predetermined(AbilityScoreType::Strength),
+            AbilityBoostChoice::predetermined(AbilityScoreType::Constitution),
+            AbilityBoostChoice::free(),
+        ];
+
+        set.apply_choices(&vec![AbilityScoreType::Strength])
+            .unwrap();
     }
 }
