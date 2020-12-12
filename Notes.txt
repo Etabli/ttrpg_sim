@@ -2,6 +2,8 @@ Features:
   - Characters
     - Name, Description
     - Level
+      - Level up needs to gather options from class/ancestry and make the user choose
+        - Optionally support presets for quick character creation
     - HP
       - Max HP
         - can be temporarily reduced
