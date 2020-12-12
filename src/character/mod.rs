@@ -1,5 +1,6 @@
 mod ability_score;
 mod ancestry;
+mod background;
 mod character;
 mod class;
 mod health;
@@ -10,6 +11,7 @@ pub use ability_score::AbilityScore;
 pub use ability_score::AbilityScoreSet;
 pub use ability_score::AbilityScoreType;
 pub use ancestry::Ancestry;
+pub use background::Background;
 pub use character::Character;
 pub use character::Size;
 pub use class::Class;
