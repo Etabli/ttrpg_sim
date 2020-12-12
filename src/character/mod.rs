@@ -1,11 +1,14 @@
-pub mod ability_score;
+mod ability_score;
+mod ancestry;
 mod character;
-pub mod class;
-pub mod health;
+mod class;
+mod health;
 
 pub use ability_score::AbilityScore;
 pub use ability_score::AbilityScoreSet;
 pub use ability_score::AbilityScoreType;
+pub use ancestry::Ancestry;
 pub use character::Character;
+pub use character::Size;
 pub use class::Class;
 pub use health::Health;

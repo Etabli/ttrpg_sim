@@ -1,4 +1,6 @@
-#[derive(Debug, Copy, Clone)]
+use std::collections::HashSet;
+
+#[derive(Debug, Copy, Clone, Eq, PartialEq, Ord, PartialOrd)]
 pub struct AbilityScore {
     value: u32,
 }
@@ -21,7 +23,7 @@ impl AbilityScore {
     }
 }
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub enum AbilityScoreType {
     Strength,
     Dexterity,
@@ -53,13 +55,15 @@ impl AbilityScoreSet {
         }
     }
 
-    pub fn with_boosts(boosts: Vec<AbilityScoreType>) -> AbilityScoreSet {
+    pub fn with_boosts(boosts: &Vec<&HashSet<AbilityScoreType>>) -> AbilityScoreSet {
         let mut set = AbilityScoreSet::new();
-        set.boost(boosts);
+        for &boost in boosts.iter() {
+            set.boost(boost);
+        }
         set
     }
 
-    pub fn boost(&mut self, boosts: Vec<AbilityScoreType>) {
+    pub fn boost(&mut self, boosts: &HashSet<AbilityScoreType>) {
         for score in boosts.iter() {
             match score {
                 AbilityScoreType::Strength => self.strength.boost(),
@@ -72,14 +76,14 @@ impl AbilityScoreSet {
         }
     }
 
-    pub fn get(&self, ability_score: AbilityScoreType) -> &AbilityScore {
+    pub fn get(&self, ability_score: AbilityScoreType) -> AbilityScore {
         match ability_score {
-            AbilityScoreType::Strength => &self.strength,
-            AbilityScoreType::Dexterity => &self.dexterity,
-            AbilityScoreType::Constitution => &self.constitution,
-            AbilityScoreType::Intelligence => &self.intelligence,
-            AbilityScoreType::Wisdom => &self.wisdom,
-            AbilityScoreType::Charisma => &self.charisma,
+            AbilityScoreType::Strength => self.strength,
+            AbilityScoreType::Dexterity => self.dexterity,
+            AbilityScoreType::Constitution => self.constitution,
+            AbilityScoreType::Intelligence => self.intelligence,
+            AbilityScoreType::Wisdom => self.wisdom,
+            AbilityScoreType::Charisma => self.charisma,
         }
     }
 }
@@ -109,7 +113,7 @@ mod tests {
     fn ability_score_set_boost() {
         let mut set = AbilityScoreSet::new();
 
-        set.boost(vec![
+        set.boost(&hashset![
             AbilityScoreType::Strength,
             AbilityScoreType::Dexterity,
             AbilityScoreType::Constitution,
