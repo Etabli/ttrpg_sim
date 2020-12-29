@@ -39,4 +39,22 @@ Features:
     - Area calculation
     - Tokens
     - Light + Visibility
+  - Commands
+    - Character creation
+      - Deciding class/ancestry/background
+        - Prompts for choices (like ability boosts)
+        - Presets (can be partial, missing choices are prompted)
+        - Optionally override stuff like base HP
+      - Specify stuff like name/description/gender/age/etc
+      - Pick equipment (optional)
+      - Set starting level and go through level-up choices
+    - Character editing
+      - Add/remove status effects
+      - Change inventory
+      - Change details (name/age/etc)
+      - Level up
+      - Change some base attributes (hp, proficiencies, feat choices, etc)
+    - Roll arbitrary rolls for a character
+    - Do combat stuff
+      
     
